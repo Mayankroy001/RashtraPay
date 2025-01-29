@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment System</title>
+  <style>
+    /* General Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #141414;
+      color: #ffffff;
+      padding: 12px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Header Styles */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #141414;
+      color: #ffffff;
+    }
+
+    .logo {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .notification-icon {
+      position: relative;
+      cursor: pointer;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease;
+    }
+
+    .notification-icon:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background-color: #ff4444;
+      color: white;
+      border-radius: 50%;
+      padding: 4px;
+      font-size: 10px;
+      min-width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .notification-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: #1a1a1a;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      min-width: 300px;
+      display: none;
+      z-index: 1000;
+      margin-top: 8px;
+    }
+
+    .notification-dropdown.show {
+      display: block;
+    }
+
+    .notification-header {
+      padding: 16px;
+      border-bottom: 1px solid #333;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .notification-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .notification-item {
+      padding: 16px;
+      border-bottom: 1px solid #333;
+      cursor: pointer;
+    }
+
+    .notification-item:hover {
+      background-color: #222;
+    }
+
+    .notification-time {
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* Search Bar */
+    .search-container {
+      flex-shrink: 0;
+    }
+
+    .search-bar {
+      width: 100%;
+      padding: 8px 16px 8px 36px;
+      border-radius: 12px;
+      border: none;
+      background-color: #1E1E1E;
+      color: #fff;
+      font-size: 14px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='%23888'%3E%3Cpath d='M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 10px center;
+      background-size: 16px;
+    }
+
+    .search-bar::placeholder {
+      color: #888;
+    }
+
+    /* Payment Form */
+    .payment-container {
+      background: #1E1E1E;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-container h2 {
+      margin-bottom: 20px;
+      font-size: 20px;
+      color: #ffffff;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    input[type="number"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #333;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      background-color: rgb(3 3 3);
+      box-shadow: 8px 4px 13px 1px rgba(60, 223, 93, 0.95);
+      font-family: sans-serif;
+    }
+
+    button:hover {
+      background-color: rgb(60, 223, 93);
+      box-shadow: inset 1px 1px 12px 0px rgb(0 0 0 / 95%);
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="#" class="logo">Unipay</a>
+    <div class="notification-icon" id="notificationIcon">
+      <span class="notification-badge">3</span>
+      <div class="notification-dropdown" id="notificationDropdown">
+        <div class="notification-header">Notifications</div>
+        <div class="notification-list">
+          <div class="notification-item">
+            <div>New payment received from John Doe</div>
+            <div class="notification-time">2 minutes ago</div>
+          </div>
+          <div class="notification-item">
+            <div>Your account has been verified</div>
+            <div class="notification-time">1 hour ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="search-container">
+    <input type="text" class="search-bar" placeholder="Search transactions">
+  </div>
+
+  <div class="payment-container">
+    <h2>Payment System</h2>
+    <form id="paymentForm">
+      <div class="form-group">
+        <label for="amount">Enter Amount (INR):</label>
+        <input type="number" id="amount" name="amount" placeholder="Enter amount" required>
+      </div>
+      <div class="form-group hidden" id="pinGroup">
+        <label for="pin">Enter PIN:</label>
+        <input type="password" id="pin" name="pin" placeholder="Enter PIN">
+      </div>
+      <button type="submit">Submit Payment</button>
+    </form>
+  </div>
+
+  <script>
+    const notificationIcon = document.getElementById('notificationIcon');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const amountInput = document.getElementById('amount');
+    const pinGroup = document.getElementById('pinGroup');
+    const paymentForm = document.getElementById('paymentForm');
+
+    notificationIcon.addEventListener('click', () => {
+      notificationDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!notificationIcon.contains(event.target)) {
+        notificationDropdown.classList.remove('show');
+      }
+    });
+
+    amountInput.addEventListener('input', () => {
+      const amount = parseFloat(amountInput.value);
+      if (amount >= 250) {
+        pinGroup.classList.remove('hidden');
+      } else {
+        pinGroup.classList.add('hidden');
+      }
+    });
+
+    paymentForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const amount = parseFloat(amountInput.value);
+      const pin = document.getElementById('pin').value;
+
+      if (amount >= 250 && !pin) {
+        alert('Please enter your PIN for payments 250 INR or above.');
+      } else if (amount > 0) {
+        alert('Payment Successful!');
+      } else {
+        alert('Please enter a valid amount.');
+      }
+    });
+  </script>
+</body>
+</html>
